@@ -1,3 +1,31 @@
+# Import Dependencies
+from splinter import Browser
+from bs4 import BeautifulSoup as soup
+from webdriver_manager.chrome import ChromeDriverManager
+import pandas as pd
+import datetime as dt
+
+
+def scrape_all():
+    # Initiate headless driver for deployment
+    executable_path = {'executable_path': "C:\\Users\\A Girl's Lenovo\\.wdm\\drivers\\chromedriver\\win32\\89.0.4389.23\\chromedriver.exe"}
+    browser = Browser('chrome', **executable_path, headless=True)
+
+    news_title, news_p = mars_news(browser)
+
+    # Run all scraping functions and store results in a dictionary
+    data = {
+        "news_title": news_title,
+        "news_paragraph": news_p,
+        "featured_image": featured_image(browser),
+        "facts": mars_facts(),
+        "last_modified": dt.datetime.now()
+    }
+
+    # End the automated browsing session and return data
+    browser.quit()
+    return data
+
 def mars_news(browser):
 
     # Visit the mars nasa news site
@@ -44,8 +72,8 @@ def featured_image(browser):
 
     # Add try/except for error handling
     try:
-    # find the relative image url
-    img_url_rel = img_soup.find('img', class_='fancybox-image').get('src')
+        # find the relative image url
+        img_url_rel = img_soup.find('img', class_='fancybox-image').get('src')
 
     except AttributeError:
         return None
@@ -55,6 +83,23 @@ def featured_image(browser):
     
     return img_url
 
+def mars_facts():
+    # Add try/except for error handling
+    try:
+        # Use 'read_html' to scrape the facts table into a dataframe
+        df = pd.read_html('https://data-class-mars-facts.s3.amazonaws.com/Mars_Facts/index.html')[0]
 
-# End the automated browsing session
-# browser.quit()
+    except BaseException
+        return None
+
+    # Assign columns and set index of dataframe
+    df.columns=['description', 'Mars', 'Earth']
+    df.set_index('description', inplace=True)
+
+    # Convert dataframe into HTML format, add bootstrap
+    return df.to_html(classes="table table-striped")
+
+
+if __name__ == "__main__":
+    # If running as script, print scraped data
+    print(scrape_all())
