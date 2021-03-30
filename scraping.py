@@ -1,27 +1,33 @@
-# Import Splinter and BeautifulSoup
-from splinter import Browser
-from bs4 import BeautifulSoup as soup
-from webdriver_manager.chrome import ChromeDriverManager
-import pandas as pd
+def mars_news(browser):
 
+    # Visit the mars nasa news site
+    url = 'https://data-class-mars.s3.amazonaws.com/Mars/index.html'
+    browser.visit(url)
 
-# Set the executable path and initialize the chrome browser in splinter
-executable_path = {'executable_path': "C:\\Users\\A Girl's Lenovo\\.wdm\\drivers\\chromedriver\\win32\\89.0.4389.23\\chromedriver.exe"}
-browser = Browser('chrome', **executable_path, headless=False)
+    # Optional delay for loading the page
+    browser.is_element_present_by_css('div.list_text', wait_time=1)
 
+    # Convert the browser html to a soup object and then quit the browser
+    # set up the HTML parser:
+    html = browser.html
+    news_soup = soup(html, 'html.parser')
 
-# Visit the mars nasa news site
-url = 'https://data-class-mars.s3.amazonaws.com/Mars/index.html'
-browser.visit(url)
+    # Add try/except for error handling
+    try:
+        # Begin our scraping
+        slide_elem = news_soup.select_one('div.list_text')
+        slide_elem.find('div', class_= 'content_title')
 
+        # Use the parent element to find the first `a` tag and save it as 'news_title'
+        news_title = slide_elem.find('div', class_='content_title').get_text()
+        
+        # Use the parent element to find the paragraph text
+        news_p = slide_elem.find('div', class_='article_teaser_body').get_text()
+    except AttributeError:
+        return None, None
+        
+    return news_title, news_p
 
-# Optional delay for loading the page
-browser.is_element_present_by_css('div.list_text', wait_time=1)
-
-
-# Convert the browser html to a soup object then quit the browser
-html = browser.html
-news_soup = soup(html, 'html.parser')
 
 # End the automated browsing session
-browser.quit()
+# browser.quit()
