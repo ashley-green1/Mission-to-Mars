@@ -89,7 +89,7 @@ def mars_facts():
         # Use 'read_html' to scrape the facts table into a dataframe
         df = pd.read_html('https://data-class-mars-facts.s3.amazonaws.com/Mars_Facts/index.html')[0]
 
-    except BaseException
+    except BaseException:
         return None
 
     # Assign columns and set index of dataframe
